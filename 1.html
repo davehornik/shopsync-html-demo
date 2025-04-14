@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ShopSync - Propojení eshopu</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <style>
+    body {
+      background-color: #f0f0f0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .app-container {
+      width: 791px;
+      height: 584px;
+      background-color: white;
+      border: 1px solid #ccc;
+      padding: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      font-size: 0.875rem;
+    }
+
+    .sidebar {
+      min-width: 160px;
+      background-color: #f8f9fa;
+      font-size: 0.75rem;
+    }
+
+    .sidebar .nav-link.active {
+      background-color: orange;
+      color: white !important;
+    }
+
+    .form-check {
+      margin-bottom: 0.4rem;
+      font-size: 0.75rem;
+    }
+
+    .form-check-label {
+      font-size: 0.85rem;
+    }
+
+    .btn {
+      font-size: 0.75rem;
+    }
+
+    .footer-text {
+      font-size: 0.75rem;
+    }
+
+    .spacer {
+      height: 28px;
+    }
+
+    /* Action Buttons Section */
+    .action-buttons {
+      font-size: 0.75rem;
+      display: flex;
+      justify-content: flex-end; /* Align buttons to the right */
+      gap: 10px; /* Space between the buttons */
+    }
+
+    .action-buttons .btn {
+      width: 48%; /* Make buttons half-width */
+      height:fit-content ;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h6 class="mb-0">ShopSync - Propojení eshopu a účetního software</h6>
+      <div class="d-flex align-items-center">
+        <label class="me-2 mb-0">Nastavení:</label>
+        <select class="form-select form-select-sm w-auto" id="settingsSelect">
+          <option selected>Shoptet</option>
+          <option value="2">Presta</option>
+          <option value="3">A další dle potřeby</option>
+        </select>
+        <button class="btn btn-secondary btn-sm ms-2" onclick="selectSetting()">Vybrat</button>
+        <button class="btn btn-outline-secondary btn-sm ms-1" onclick="saveSetting()">Uložit</button>
+        <button class="btn btn-outline-secondary btn-sm ms-1" onclick="addSetting()">Přidat</button>
+        <button class="btn btn-outline-danger btn-sm ms-1" onclick="deleteSetting()">Smazat</button>
+        <button class="btn btn-outline-secondary btn-sm ms-1" onclick="renameSetting()">Přejmenovat</button>
+      </div>
+    </div>
+
+    <div class="row" style="height: 100%; overflow-y: auto;">
+      <!-- Sidebar -->
+      <div class="col-3 sidebar">
+        <div class="nav flex-column nav-pills">
+          <a class="nav-link active" href="#">Ovládání</a>
+          <a class="nav-link" href="2.html">Výstup</a>
+          <a class="nav-link" href="#">Připojení k IS</a>
+          <a class="nav-link" href="#">Připojení k eshopu</a>
+          <a class="nav-link" href="#">Základní nastavení</a>
+          <a class="nav-link" href="#">Pokročilé nastavení</a>
+          <a class="nav-link" href="#">Automatický přenos</a>
+          <a class="nav-link" href="#">Skripty a příkazy</a>
+          <a class="nav-link" href="#">Historie</a>
+          <a class="nav-link" href="#">Podpora a licence</a>
+        </div>
+      </div>
+
+      <!-- Main -->
+      <div class="col-9">
+        <div class="row">
+          <!-- Left Checkboxes -->
+          <div class="col-6">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="exportOrders" onchange="logChange(this)">
+              <label class="form-check-label" for="exportOrders">Exportovat objednávky z eshopu</label>
+            </div>
+            <div class="form-check mt-3">
+              <input class="form-check-input" type="checkbox" id="exportStock" onchange="logChange(this)">
+              <label class="form-check-label" for="exportStock">Exportovat zásoby z eshopu</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="exportCategories" onchange="logChange(this)">
+              <label class="form-check-label" for="exportCategories">Exportovat kategorie z eshopu</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="exportAddresses" onchange="logChange(this)">
+              <label class="form-check-label" for="exportAddresses">Exportovat adresář</label>
+            </div>
+          </div>
+
+          <!-- Right Checkboxes -->
+          <div class="col-6">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="importOrders" onchange="logChange(this)">
+              <label class="form-check-label" for="importOrders">Importovat objednávky do účetního SW</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="importStock" checked onchange="logChange(this)">
+              <label class="form-check-label fw-bold" for="importStock">Importovat zásoby do eshopu</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="importImages" onchange="logChange(this)">
+              <label class="form-check-label" for="importImages">Importovat obrázky do eshopu</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="importCategories" checked onchange="logChange(this)">
+              <label class="form-check-label fw-bold" for="importCategories">Importovat kategorie do eshopu</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="importParams" onchange="logChange(this)">
+              <label class="form-check-label" for="importParams">Importovat parametry do eshopu</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="importAddress" onchange="logChange(this)">
+              <label class="form-check-label" for="importAddress">Importovat adresář do eshopu</label>
+            </div>
+            <div class="form-check mt-3">
+              <input class="form-check-input" type="checkbox" id="importStockSw" onchange="logChange(this)">
+              <label class="form-check-label" for="importStockSw">Importovat zásoby do účetního SW</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="importCategoriesSw" onchange="logChange(this)">
+              <label class="form-check-label" for="importCategoriesSw">Importovat kategorie do účetního SW</label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="importAddressSw" onchange="logChange(this)">
+              <label class="form-check-label" for="importAddressSw">Importovat adresář do účetního SW</label>
+            </div>
+          </div>
+        </div>
+        <div class="spacer"></div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button class="btn btn-outline-dark" onclick="runAll()">Spustit aktuální nastavení</button>
+        </div><br>
+        <div class="action-buttons">
+          <p class="mt-2 small text-muted footer-text" style="text-align: right;">
+            <strong>Přenos všech definovaných nastavení</strong><br />
+            Dle výběru modulů v Automatický přenos/Hlavní úloha.
+          </p>
+          <button class="btn btn-outline-dark" onclick="runCurrent()">Spustit všechna nastavení v dávce</button>
+        </div>
+        <div class="spacer"></div>
+        <!-- Footer -->
+
+
+        <div class="d-flex justify-content-between align-items-center small text-muted footer-text">
+          <span>Verze 5.2 © integys s.r.o., 2022</span>
+          <button class="btn btn-outline-secondary btn-sm" onclick="resetChanges()">Reset přenosu změn</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function logChange(cb) {
+      console.log(`${cb.id} is ${cb.checked ? 'checked' : 'unchecked'}`);
+    }
+
+    function runCurrent() {
+      alert("Spouštím aktuální nastavení...");
+    }
+
+    function runAll() {
+      alert("Spouštím všechna nastavení v dávce...");
+    }
+
+    function resetChanges() {
+      document.querySelectorAll("input[type='checkbox']").forEach(cb => cb.checked = false);
+      console.log("Resetováno.");
+    }
+
+    function selectSetting() {
+      alert("Nastavení vybráno.");
+    }
+
+    function saveSetting() {
+      alert("Nastavení uloženo.");
+    }
+
+    function addSetting() {
+      alert("Nové nastavení přidáno.");
+    }
+
+    function deleteSetting() {
+      alert("Nastavení smazáno.");
+    }
+
+    function renameSetting() {
+      const newName = prompt("Zadejte nové jméno nastavení:");
+      if (newName) {
+        alert(`Nastavení přejmenováno na: ${newName}`);
+      }
+    }
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
